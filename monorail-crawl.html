@@ -1,648 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monorail Bar Crawl Tracker</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
-            color: white;
-            padding: 30px;
-        }
-        
-        .header h1 {
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-        
-        .header p {
-            opacity: 0.9;
-        }
-        
-        .back-btn {
-            display: inline-block;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
-            text-decoration: none;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-        }
-        
-        .back-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        .progress-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-bottom: 2px solid #e9ecef;
-        }
-        
-        .progress-bar {
-            background: #e9ecef;
-            height: 30px;
-            border-radius: 15px;
-            overflow: hidden;
-            margin: 15px 0;
-        }
-        
-        .progress-fill {
-            background: linear-gradient(90deg, #7c3aed 0%, #1e3a8a 100%);
-            height: 100%;
-            transition: width 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-        
-        .location-list {
-            display: grid;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .location-item {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 5px solid #e9ecef;
-            transition: all 0.3s;
-        }
-        
-        .location-item.visited {
-            border-left-color: #10b981;
-            background: #f0fdf4;
-        }
-        
-        .location-item.current {
-            border-left-color: #7c3aed;
-            background: #f5f3ff;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);
-        }
-        
-        .location-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-        
-        .location-number {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #e9ecef;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-        
-        .location-item.visited .location-number {
-            background: #10b981;
-            color: white;
-        }
-        
-        .location-item.current .location-number {
-            background: #7c3aed;
-            color: white;
-        }
-        
-        .location-name {
-            font-weight: 600;
-            color: #333;
-            font-size: 1.1em;
-        }
-        
-        .location-drinks {
-            color: #666;
-            font-size: 0.9em;
-            margin: 10px 0;
-        }
-        
-        .special-note {
-            background: #fef3c7;
-            padding: 8px 12px;
-            border-radius: 6px;
-            margin-top: 8px;
-            font-size: 0.85em;
-            color: #92400e;
-            border-left: 3px solid #f59e0b;
-        }
-        
-        .content {
-            padding: 30px;
-        }
-        
-        .form-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 600;
-        }
-        
-        .form-group select,
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-        }
-        
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .star-rating {
-            display: flex;
-            gap: 5px;
-            font-size: 2em;
-            cursor: pointer;
-        }
-        
-        .star {
-            color: #ddd;
-            transition: color 0.2s;
-            user-select: none;
-        }
-        
-        .star.active {
-            color: #fbbf24;
-        }
-        
-        .rating-display {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #7c3aed;
-            margin-left: 15px;
-        }
-        
-        .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(124, 58, 237, 0.4);
-        }
-        
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-        
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-            padding: 8px 16px;
-            font-size: 0.9em;
-        }
-        
-        .drinks-history {
-            margin-top: 30px;
-        }
-        
-        .drink-item {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .drink-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .drink-name {
-            font-weight: 600;
-            color: #7c3aed;
-            font-size: 1.1em;
-        }
-        
-        .drink-rating {
-            color: #fbbf24;
-            font-size: 1.2em;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <a href="index.html" class="back-btn">← Back to All Crawls</a>
-            <h1>Monorail Bar Crawl</h1>
-            <p>The classic resort monorail route through Contemporary, Polynesian, and Grand Floridian</p>
-        </div>
-        
-        <div class="progress-section">
-            <h2>Your Progress</h2>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill">0/6 locations</div>
-            </div>
-            <button class="btn btn-success" id="completeBtn" onclick="completeCrawl()" style="display:none; margin-top: 15px;">
-                🎉 Complete This Crawl!
-            </button>
-            
-            <div class="location-list" id="locationList"></div>
-        </div>
-        
-        <div class="content">
-            <div class="form-section">
-                <h2>Add Drink</h2>
-                <form id="drinkForm">
-                    <div class="form-group">
-                        <label for="location">Location</label>
-                        <select id="location" required>
-                            <option value="">Choose a location...</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="drink">Drink</label>
-                        <select id="drink" required disabled>
-                            <option value="">First select a location...</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="customDrink">Custom Drink (optional)</label>
-                        <input type="text" id="customDrink" placeholder="Enter custom drink name">
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="date">Date</label>
-                            <input type="date" id="date" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="time">Time</label>
-                            <input type="time" id="time" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="notes">Notes</label>
-                        <textarea id="notes" placeholder="How was it?"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Rating (1-10)</label>
-                        <div style="display: flex; align-items: center;">
-                            <div class="star-rating" id="starRating"></div>
-                            <span class="rating-display" id="ratingDisplay">0/10</span>
-                        </div>
-                        <input type="hidden" id="rating" value="0">
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary">Add Drink</button>
-                </form>
-            </div>
-            
-            <div class="drinks-history">
-                <h2>Your Drinks</h2>
-                <div id="drinksList"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const LOCATIONS = [
+const LOCATIONS = [
             {
                 name: "Contemporary Resort: Steakhouse 71 Lounge",
-                drinks: ["Espresso Martini (off menu)", "Not a Pop (rum and Coke)", "The 1971 Sunset (tequila, POG, rosemary)"],
-                notes: "Recommended starting spot. Opens at noon. Try the Steakhouse 71 Stack Burger!",
-                specialNote: "Mid-century modern vibe, perfect for food"
+                drinks: [
+                    {name: "1971 Sunset", price: "$27.00", desc: "Herradura Reposado Tequila, POG Juice, Rosemary Simple Syrup, House-made Grenadine"},
+                    {name: "Not A Pop", price: "$14.50", desc: "Averna Amaro, Bacardí 8 Gold Rum, House-made Grenadine, Angostura Bitters, Soda Water"},
+                    {name: "Espresso Martini", price: "Ask server", desc: "Off-menu favorite - ask your bartender!"}
+                ],
+                food: [
+                    {name: "Stack Burger", price: "$21.00", desc: "Signature Blend, Pork Belly, American Cheese, Lemon Aïoli with choice of side"},
+                    {name: "PB&J Chicken Wings", price: "$14.00", desc: "Sweet Peanut Glaze and Jelly Powder"}
+                ],
+                notes: "Recommended starting spot with 1970s mid-century modern vibe. Opens at noon. Great food options including the famous Stack Burger. Relaxed atmosphere with lounge seating.",
+                specialNote: "Perfect for food - this is more of a restaurant lounge than a bar. Settles into comfortable seating with beverages reminiscent of the 1970s",
+                hours: "Opens at noon",
+                tips: "Try to get here early to start your crawl. The Steakhouse 71 Stack Burger is legendary!"
             },
             {
                 name: "Contemporary Resort: California Grill Lounge",
-                drinks: ["California Grill Sour", "Ancho Rancho Spicy Margarita"],
-                notes: "Sophisticated vibe with incredible Magic Kingdom fireworks views",
-                specialNote: "Walk-up seating is first come, first served"
+                drinks: [
+                    {name: "California Grill Sour", price: "$15-18", desc: "House specialty - ask bartender for details"},
+                    {name: "Spicy Margarita", price: "$16-19", desc: "Tequila-based with a kick"},
+                    {name: "Craft Cocktails", price: "$15-25", desc: "Extensive cocktail menu with premium spirits"}
+                ],
+                food: [
+                    {name: "Duck A L'Orange Pizza", price: "$23.00", desc: "Duck confit, prosciutto, orange-black mission fig jam, pickled shallots, aged blue cheese, arugula"},
+                    {name: "Pepperoni Pizza", price: "$23.00", desc: "Tomato, fontina, asiago, parmesan, mozzarella, herbed pistou"}
+                ],
+                notes: "Sophisticated rooftop lounge with incredible Magic Kingdom fireworks views from the 15th floor. Features an expanded sushi bar and 250+ wine selections. Opens at 5 PM.",
+                specialNote: "Walk-up seating is first come, first served - no reservations for lounge area. Best fireworks views in all of WDW!",
+                hours: "Opens at 5:00 PM",
+                tips: "Arrive before fireworks time if you want a window spot. The observation deck is open to diners. Prix fixe dinner is $89 but lounge offers same quality à la carte"
             },
             {
                 name: "Polynesian Village Resort: Tambu Lounge",
-                drinks: ["Lapu Lapu (iconic, served in pineapple)", "Backscratcher (with garnish)"],
-                notes: "Holding area while waiting for Trader Sam's. May be able to snag 'Ohana Noodles and Bread Pudding!",
-                specialNote: "Attached to 'Ohana restaurant"
+                drinks: [
+                    {name: "Lapu Lapu", price: "$19.50", desc: "Plantation Original Dark Rum, Tropical Fruit Juices, served in fresh pineapple, topped with Gosling's 151 Rum (ICONIC!)"},
+                    {name: "Backscratcher", price: "$15.00", desc: "Bacardí Superior & Plantation Dark Rum, Guava-Passion Fruit Juice, topped with Jack Daniel's, comes with bamboo backscratcher"},
+                    {name: "Polynesian Mai Tai", price: "$16.00", desc: "Plantation Dark & Bacardí Superior Rum, Bols Orange Curaçao, Lime Juice, Orgeat, Pure Cane Sugar"}
+                ],
+                food: [
+                    {name: "'Ohana Noodles", price: "Market Price", desc: "Sometimes available! The legendary noodles from 'Ohana restaurant"},
+                    {name: "'Ohana Bread Pudding", price: "Market Price", desc: "When available - worth asking for!"}
+                ],
+                notes: "Located on second floor of Great Ceremonial House. Perfect holding area while waiting for Trader Sam's. Small bar with handful of tables. Tropical atmosphere.",
+                specialNote: "Can sometimes order select 'Ohana items! Service can be slow when busy. Attached to 'Ohana restaurant",
+                hours: "Varies - check with resort",
+                tips: "Order the Lapu Lapu in the pineapple for the full experience. Ask if 'Ohana Bread Pudding is available!"
             },
             {
                 name: "Polynesian Village Resort: Trader Sam's Grog Grotto",
-                drinks: ["Uh-Oa! (sharable, set on fire, bar chants)", "Nautilus (giant blue rum drink in souvenir mug)", "Zombie (strong/dangerous)"],
-                notes: "Tiny, loud, chaotic, and unhinged in the best way!",
-                specialNote: "MUST get on in-person waitlist first. Becomes 21+ after 8 PM"
+                drinks: [
+                    {name: "Uh-Oa!", price: "$26.50", desc: "Plantation & Bacardi Rum, Orange, Passion Fruit, Guava, Pineapple, Grapefruit Juices, Falernum, Cinnamon, Lime (SERVES 2+) - Set on FIRE with bar chanting!"},
+                    {name: "Nautilus", price: "$37.00 ($62 w/mug)", desc: "Barbancourt Pango & Appleton Estate Rum, Combier Crème de Pêche, Tropical Juices, Falernum (SERVES 2) - Comes with light show & bubbles!"},
+                    {name: "Shrunken Zombie Head", price: "$19.50 w/mug", desc: "Strong rum drink served in collectible tiki mug"},
+                    {name: "HippopotoMai-Tai", price: "$21.00 w/mug", desc: "Plantation & Bacardi Rum, Bols Orange Curaçao, Orgeat, Agave, Lime"}
+                ],
+                food: [
+                    {name: "Chicken Lettuce Cups", price: "$15-18", desc: "Light and flavorful"},
+                    {name: "Hawaiian Poke", price: "$18-22", desc: "Fresh and delicious"}
+                ],
+                notes: "TINY tiki bar (seats ~50) with interactive drink experiences! Order certain drinks and watch the bar come alive with audio/visual effects, erupting volcano, thunderstorms, and Cast Member antics. Loud, chaotic, unhinged - and AMAZING!",
+                specialNote: "MUST get on in-person waitlist first (at hostess stand inside). Becomes 21+ after 8 PM. Wait times can be 1-3 hours peak times!",
+                hours: "4:00 PM - Midnight (21+ after 8 PM)",
+                tips: "Put your name on the list EARLY! Alternative: Tiki Terrace patio outside has same menu, no wait, all ages, live music. Keep receipt for souvenir mugs - pick up boxed mug at entrance desk on way out"
             },
             {
                 name: "Grand Floridian Resort: Enchanted Rose",
-                drinks: ["Lavender Fog (gin, tea, vanilla)", "Island Rose (grapefruit & rose vodka, pineapple)", "Manhattan (bold/smooth)"],
-                notes: "Gorgeous, calm, classy wind-down spot. Truffle Fries highly recommended!",
-                specialNote: "Do not visit before 5 PM for heartier food options"
+                drinks: [
+                    {name: "Manhattan", price: "$26.50", desc: "WhistlePig 10yr Rye, Carpano Antica Sweet Vermouth, Angostura & Orange Bitters (Bold & Smooth!)"},
+                    {name: "Island Rose", price: "$17.50", desc: "Ketel One Grapefruit & Rose, Lime, Orgeat (Almond), Pineapple, Bitters, Rose Water"},
+                    {name: "French Rose Martini", price: "$15.00", desc: "g'Vine Floraison Gin, Apricot Brandy, Dolin Dry Vermouth, Lemon, Grenadine"},
+                    {name: "Espresso Martini", price: "$14.00", desc: "Stoli Vanilla Vodka, Espresso, Crème de Cacao"}
+                ],
+                food: [
+                    {name: "Truffle Fries", price: "$14-16", desc: "HIGHLY RECOMMENDED by crawl veterans!"},
+                    {name: "Seasonal Flatbread", price: "$18.00", desc: "Artichoke, Fig, Ricotta, Roasted Garlic, Watercress"},
+                    {name: "Charcuterie", price: "$22.00", desc: "Duck Rillettes, Bresaola, Serrano Ham, Sopressata"}
+                ],
+                notes: "Gorgeous Beauty and the Beast-themed lounge with 4 unique rooms: chandelier bar (Belle's gown), formal library (baroque designs), garden room (enchanted forest), outdoor patio (garden terrace). Calm, classy, elegant wind-down spot.",
+                specialNote: "Opens at 3:30 PM - arrive after 5 PM for full menu. Earlier hours only have limited snacks. Can get busy - earlier evening = shorter wait",
+                hours: "3:30 PM - 11:00 PM",
+                tips: "Perfect for winding down after Trader Sam's chaos. Truffle Fries are a must! Each room offers different ambiance - bar area has the iconic chandelier. Pricey but quality cocktails"
             },
             {
                 name: "Grand Floridian Resort: Citricos Lounge",
-                drinks: ["Pineapple Daiquiri", "La Rosa (smoky mezcal)"],
-                notes: "Walk-up bar often wide open. Great wine list!",
-                specialNote: "Take drinks down to water for fireworks viewing"
+                drinks: [
+                    {name: "Pineapple Daiquiri", price: "$15-18", desc: "Refreshing rum-based tropical classic"},
+                    {name: "La Rosa", price: "$16-19", desc: "Smoky mezcal cocktail"},
+                    {name: "Craft Cocktails", price: "$15-20", desc: "Full bar with extensive wine list"},
+                    {name: "Wine by Glass", price: "$12-20", desc: "Excellent wine selection - ask sommelier!"}
+                ],
+                food: [
+                    {name: "Full Citricos Menu", price: "Varies", desc: "Can order appetizers ($12-22) or full entrees ($35-62) from main restaurant"},
+                    {name: "Small Plates", price: "$12-20", desc: "Perfect for sharing"}
+                ],
+                notes: "Mary Poppins Returns-themed lounge with coastal American/Mediterranean cuisine. Walk-up bar often wide open with no wait! More casual alternative to main dining room. Features floor-to-ceiling windows overlooking courtyard.",
+                specialNote: "Can order full dinner menu in lounge! Take drinks down to waterfront for fireworks viewing. Dress code: dress casual (no swimwear/flip-flops)",
+                hours: "Dinner hours (check with resort)",
+                tips: "Great wine list! Often overlooked so easier to get into than Enchanted Rose. Can see fireworks from windows. Perfect spot if you want to sit down for actual dinner"
             }
         ];
-
-        let drinks = [];
-        let completions = 0;
-        let currentRating = 0;
-
-        function init() {
-            loadData();
-            populateLocations();
-            setupStarRating();
-            setCurrentDateTime();
-            updateDisplay();
-        }
-
-        function loadData() {
-            const saved = localStorage.getItem('monorailCrawlData');
-            if (saved) {
-                const data = JSON.parse(saved);
-                drinks = data.drinks || [];
-                completions = data.completions || 0;
-            }
-        }
-
-        function saveData() {
-            localStorage.setItem('monorailCrawlData', JSON.stringify({
-                drinks: drinks,
-                completions: completions
-            }));
-        }
-
-        function populateLocations() {
-            const select = document.getElementById('location');
-            LOCATIONS.forEach((loc, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = `${index + 1}. ${loc.name}`;
-                select.appendChild(option);
-            });
-        }
-
-        document.getElementById('location').addEventListener('change', function() {
-            const drinkSelect = document.getElementById('drink');
-            drinkSelect.innerHTML = '<option value="">Choose a drink...</option>';
-            drinkSelect.disabled = false;
-            
-            const locationIndex = parseInt(this.value);
-            if (!isNaN(locationIndex)) {
-                const location = LOCATIONS[locationIndex];
-                location.drinks.forEach(drink => {
-                    const option = document.createElement('option');
-                    option.value = drink;
-                    option.textContent = drink;
-                    drinkSelect.appendChild(option);
-                });
-                
-                const customOption = document.createElement('option');
-                customOption.value = 'CUSTOM';
-                customOption.textContent = '--- Custom Drink ---';
-                drinkSelect.appendChild(customOption);
-            }
-        });
-
-        function setupStarRating() {
-            const container = document.getElementById('starRating');
-            for (let i = 1; i <= 10; i++) {
-                const star = document.createElement('span');
-                star.className = 'star';
-                star.textContent = '★';
-                star.dataset.value = i;
-                star.addEventListener('click', () => setRating(i));
-                container.appendChild(star);
-            }
-        }
-
-        function setRating(value) {
-            currentRating = value;
-            document.getElementById('rating').value = value;
-            document.getElementById('ratingDisplay').textContent = `${value}/10`;
-            
-            const stars = document.querySelectorAll('.star');
-            stars.forEach((star, index) => {
-                star.classList.toggle('active', index < value);
-            });
-        }
-
-        function setCurrentDateTime() {
-            const now = new Date();
-            document.getElementById('date').valueAsDate = now;
-            document.getElementById('time').value = now.toTimeString().slice(0, 5);
-        }
-
-        document.getElementById('drinkForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (currentRating === 0) {
-                alert('Please rate your drink!');
-                return;
-            }
-            
-            const locationIndex = parseInt(document.getElementById('location').value);
-            const drinkValue = document.getElementById('drink').value;
-            const customDrink = document.getElementById('customDrink').value;
-            const date = document.getElementById('date').value;
-            const time = document.getElementById('time').value;
-            const notes = document.getElementById('notes').value;
-            
-            const location = LOCATIONS[locationIndex];
-            const drinkName = drinkValue === 'CUSTOM' ? customDrink : drinkValue;
-            
-            if (drinkValue === 'CUSTOM' && !customDrink) {
-                alert('Please enter a custom drink name!');
-                return;
-            }
-            
-            const drink = {
-                id: Date.now(),
-                location: location.name,
-                locationIndex: locationIndex,
-                drinkName: drinkName,
-                date: date,
-                time: time,
-                rating: currentRating,
-                notes: notes,
-                timestamp: new Date(`${date}T${time}`).getTime()
-            };
-            
-            drinks.push(drink);
-            saveData();
-            updateDisplay();
-            
-            this.reset();
-            document.getElementById('drink').disabled = true;
-            setRating(0);
-            setCurrentDateTime();
-            
-            alert('Drink added successfully!');
-        });
-
-        function updateDisplay() {
-            updateProgress();
-            renderLocationList();
-            renderDrinksList();
-        }
-
-        function updateProgress() {
-            const visitedLocations = new Set(drinks.map(d => d.locationIndex));
-            const progress = (visitedLocations.size / LOCATIONS.length) * 100;
-            
-            const progressFill = document.getElementById('progressFill');
-            progressFill.style.width = `${progress}%`;
-            progressFill.textContent = `${visitedLocations.size}/${LOCATIONS.length} locations`;
-            
-            if (visitedLocations.size === LOCATIONS.length) {
-                document.getElementById('completeBtn').style.display = 'block';
-            }
-        }
-
-        function renderLocationList() {
-            const visitedLocations = new Set(drinks.map(d => d.locationIndex));
-            const container = document.getElementById('locationList');
-            
-            container.innerHTML = LOCATIONS.map((loc, index) => {
-                const visited = visitedLocations.has(index);
-                const isNext = !visited && (visitedLocations.size === 0 ? index === 0 : 
-                    index === Math.min(...Array.from({length: LOCATIONS.length}, (_, i) => i).filter(i => !visitedLocations.has(i))));
-                
-                return `
-                    <div class="location-item ${visited ? 'visited' : ''} ${isNext ? 'current' : ''}">
-                        <div class="location-header">
-                            <div class="location-number">${index + 1}</div>
-                            <div class="location-name">${loc.name}</div>
-                        </div>
-                        <div class="location-drinks">${loc.drinks.join(' • ')}</div>
-                        <div style="color: #666; font-size: 0.9em; font-style: italic;">${loc.notes}</div>
-                        ${loc.specialNote ? `<div class="special-note">⚠️ ${loc.specialNote}</div>` : ''}
-                        ${visited ? '<div style="margin-top: 8px; color: #10b981; font-weight: 600;">✓ Visited</div>' : ''}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderDrinksList() {
-            const container = document.getElementById('drinksList');
-            
-            if (drinks.length === 0) {
-                container.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">No drinks tracked yet. Start your crawl!</p>';
-                return;
-            }
-            
-            const sortedDrinks = [...drinks].sort((a, b) => b.timestamp - a.timestamp);
-            
-            container.innerHTML = sortedDrinks.map(drink => `
-                <div class="drink-item">
-                    <div class="drink-header">
-                        <div>
-                            <div class="drink-name">${drink.drinkName}</div>
-                            <div style="color: #666; font-size: 0.9em;">${drink.location}</div>
-                        </div>
-                        <div class="drink-rating">${'★'.repeat(drink.rating)}</div>
-                    </div>
-                    <div style="color: #666; font-size: 0.9em; margin-bottom: 8px;">${drink.date} at ${drink.time}</div>
-                    ${drink.notes ? `<div style="color: #666; font-style: italic;">"${drink.notes}"</div>` : ''}
-                    <button class="btn btn-danger" onclick="deleteDrink(${drink.id})">Delete</button>
-                </div>
-            `).join('');
-        }
-
-        function deleteDrink(id) {
-            if (confirm('Delete this drink?')) {
-                drinks = drinks.filter(d => d.id !== id);
-                saveData();
-                updateDisplay();
-            }
-        }
-
-        function completeCrawl() {
-            const visitedLocations = new Set(drinks.map(d => d.locationIndex));
-            if (visitedLocations.size === LOCATIONS.length) {
-                completions++;
-                saveData();
-                alert(`Congratulations! You've completed the Monorail Bar Crawl!\n\nTotal completions: ${completions}x`);
-                updateDisplay();
-            }
-        }
-
-        init();
-    </script>
-</body>
-</html>
