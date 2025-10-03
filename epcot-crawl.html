@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPCOT Around the World Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .progress-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .progress-bar {
+            background: #e9ecef;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #7c3aed 0%, #1e3a8a 100%);
+            height: 100%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .location-list {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .location-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #e9ecef;
+            transition: all 0.3s;
+        }
+        
+        .location-item.visited {
+            border-left-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .location-item.current {
+            border-left-color: #7c3aed;
+            background: #f5f3ff;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);
+        }
+        
+        .location-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .location-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .location-item.visited .location-number {
+            background: #10b981;
+            color: white;
+        }
+        
+        .location-item.current .location-number {
+            background: #7c3aed;
+            color: white;
+        }
+        
+        .location-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .location-drinks {
+            color: #666;
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+        
+        .special-note {
+            background: #fef3c7;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-top: 8px;
+            font-size: 0.85em;
+            color: #92400e;
+            border-left: 3px solid #f59e0b;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .star-rating {
+            display: flex;
+            gap: 5px;
+            font-size: 2em;
+            cursor: pointer;
+        }
+        
+        .star {
+            color: #ddd;
+            transition: color 0.2s;
+            user-select: none;
+        }
+        
+        .star.active {
+            color: #fbbf24;
+        }
+        
+        .rating-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #7c3aed;
+            margin-left: 15px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(124, 58, 237, 0.4);
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+        
+        .drinks-history {
+            margin-top: 30px;
+        }
+        
+        .drink-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .drink-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .drink-name {
+            font-weight: 600;
+            color: #7c3aed;
+            font-size: 1.1em;
+        }
+        
+        .drink-rating {
+            color: #fbbf24;
+            font-size: 1.2em;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-btn">← Back to All Crawls</a>
+            <h1>EPCOT Drinking Around the World</h1>
+            <p>The legendary unofficial tradition - sample beverages from eleven World Showcase pavilions</p>
+        </div>
+        
+        <div class="progress-section">
+            <h2>Your Progress</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill">0/11 pavilions</div>
+            </div>
+            <button class="btn btn-success" id="completeBtn" onclick="completeCrawl()" style="display:none; margin-top: 15px;">
+                Complete Around the World!
+            </button>
+            
+            <div class="location-list" id="locationList"></div>
+        </div>
+        
+        <div class="content">
+            <div class="form-section">
+                <h2>Add Drink</h2>
+                <form id="drinkForm">
+                    <div class="form-group">
+                        <label for="location">Pavilion</label>
+                        <select id="location" required>
+                            <option value="">Choose a pavilion...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="drink">Drink</label>
+                        <select id="drink" required disabled>
+                            <option value="">First select a pavilion...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customDrink">Custom Drink (optional)</label>
+                        <input type="text" id="customDrink" placeholder="Enter custom drink name">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="date">Date</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="time">Time</label>
+                            <input type="time" id="time" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" placeholder="How was it?"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Rating (1-10)</label>
+                        <div style="display: flex; align-items: center;">
+                            <div class="star-rating" id="starRating"></div>
+                            <span class="rating-display" id="ratingDisplay">0/10</span>
+                        </div>
+                        <input type="hidden" id="rating" value="0">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Add Drink</button>
+                </form>
+            </div>
+            
+            <div class="drinks-history">
+                <h2>Your Drinks</h2>
+                <div id="drinksList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const LOCATIONS = [
+            {
+                name: "Mexico Pavilion",
+                drinks: ["Avocado Margarita", "Pomegranate Margarita", "Traditional Margarita", "Flight of tequilas"],
+                notes: "Start here if going clockwise. Outdoor seating with great lagoon views",
+                specialNote: "Perfect starting point"
+            },
+            {
+                name: "Norway Pavilion",
+                drinks: ["Sweet Viking (honey-based cocktail)", "Aquavit Flight"],
+                notes: "Explore Stave Church architecture and Viking traditions",
+                specialNote: "Unique Scandinavian spirits"
+            },
+            {
+                name: "China Pavilion",
+                drinks: ["Baijiu cocktails", "Chinese beer"],
+                notes: "Traditional Chinese spirits and beer",
+                specialNote: "Educational spirit tastings"
+            },
+            {
+                name: "Germany Pavilion",
+                drinks: ["German beers", "Schöfferhofer Grapefruit"],
+                notes: "Excellent beer selection",
+                specialNote: "Authentic German brews"
+            },
+            {
+                name: "Italy Pavilion",
+                drinks: ["Italian wines", "Limoncello", "Prosecco"],
+                notes: "Wine and spirits from Italy",
+                specialNote: "Great wine selection"
+            },
+            {
+                name: "The American Adventure Pavilion",
+                drinks: ["American craft beers", "Bourbon cocktails"],
+                notes: "Midpoint of the journey",
+                specialNote: "Rest and refuel"
+            },
+            {
+                name: "Japan Pavilion",
+                drinks: ["Sake", "Japanese whisky", "Plum wine"],
+                notes: "Sake flights and Japanese spirits",
+                specialNote: "Premium whisky selection"
+            },
+            {
+                name: "Morocco Pavilion",
+                drinks: ["Moroccan wines", "Mediterranean cocktails"],
+                notes: "North African flavors",
+                specialNote: "Unique wine selection"
+            },
+            {
+                name: "France Pavilion",
+                drinks: ["French wines", "Champagne", "Grand Marnier Slush"],
+                notes: "Extensive French wine list",
+                specialNote: "Don't miss the Grand Marnier Slush!"
+            },
+            {
+                name: "United Kingdom Pavilion",
+                drinks: ["Guinness", "British Ales", "Traditional Cider"],
+                notes: "Classic British pub experience at Rose & Crown. Pairs with Fish and Chips!",
+                specialNote: "Authentic pub atmosphere"
+            },
+            {
+                name: "Canada Pavilion",
+                drinks: ["Canadian beers", "Ice wine", "Whisky cocktails"],
+                notes: "Final stop! Try the unique ice wine",
+                specialNote: "Finish line celebration"
+            }
+        ];
+
+        let drinks = [];
+        let completions = 0;
+        let currentRating = 0;
+
+        function init() {
+            loadData();
+            populateLocations();
+            setupStarRating();
+            setCurrentDateTime();
+            updateDisplay();
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('epcotCrawlData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                drinks = data.drinks || [];
+                completions = data.completions || 0;
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('epcotCrawlData', JSON.stringify({
+                drinks: drinks,
+                completions: completions
+            }));
+        }
+
+        function populateLocations() {
+            const select = document.getElementById('location');
+            LOCATIONS.forEach((loc, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${index + 1}. ${loc.name}`;
+                select.appendChild(option);
+            });
+        }
+
+        document.getElementById('location').addEventListener('change', function() {
+            const drinkSelect = document.getElementById('drink');
+            drinkSelect.innerHTML = '<option value="">Choose a drink...</option>';
+            drinkSelect.disabled = false;
+            
+            const locationIndex = parseInt(this.value);
+            if (!isNaN(locationIndex)) {
+                const location = LOCATIONS[locationIndex];
+                location.drinks.forEach(drink => {
+                    const option = document.createElement('option');
+                    option.value = drink;
+                    option.textContent = drink;
+                    drinkSelect.appendChild(option);
+                });
+                
+                const customOption = document.createElement('option');
+                customOption.value = 'CUSTOM';
+                customOption.textContent = '--- Custom Drink ---';
+                drinkSelect.appendChild(customOption);
+            }
+        });
+
+        function setupStarRating() {
+            const container = document.getElementById('starRating');
+            for (let i = 1; i <= 10; i++) {
+                const star = document.createElement('span');
+                star.className = 'star';
+                star.textContent = '★';
+                star.dataset.value = i;
+                star.addEventListener('click', () => setRating(i));
+                container.appendChild(star);
+            }
+        }
+
+        function setRating(value) {
+            currentRating = value;
+            document.getElementById('rating').value = value;
+            document.getElementById('ratingDisplay').textContent = `${value}/10`;
+            
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                star.classList.toggle('active', index < value);
+            });
+        }
+
+        function setCurrentDateTime() {
+            const now = new Date();
+            document.getElementById('date').valueAsDate = now;
+            document.getElementById('time').value = now.toTimeString().slice(0, 5);
+        }
+
+        document.getElementById('drinkForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (currentRating === 0) {
+                alert('Please rate your drink!');
+                return;
+            }
+            
+            const locationIndex = parseInt(document.getElementById('location').value);
+            const drinkValue = document.getElementById('drink').value;
+            const customDrink = document.getElementById('customDrink').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const notes = document.getElementById('notes').value;
+            
+            const location = LOCATIONS[locationIndex];
+            const drinkName = drinkValue === 'CUSTOM' ? customDrink : drinkValue;
+            
+            if (drinkValue === 'CUSTOM' && !customDrink) {
+                alert('Please enter a custom drink name!');
+                return;
+            }
+            
+            const drink = {
+                id: Date.now(),
+                location: location.name,
+                locationIndex: locationIndex,
+                drinkName: drinkName,
+                date: date,
+                time: time,
+                rating: currentRating,
+                notes: notes,
+                timestamp: new Date(`${date}T${time}`).getTime()
+            };
+            
+            drinks.push(drink);
+            saveData();
+            updateDisplay();
+            
+            this.reset();
+            document.getElementById('drink').disabled = true;
+            setRating(0);
+            setCurrentDateTime();
+            
+            alert('Drink added successfully!');
+        });
+
+        function updateDisplay() {
+            updateProgress();
+            renderLocationList();
+            renderDrinksList();
+        }
+
+        function updateProgress() {
+            const visitedLocations = new Set(drinks.map(d => d.locationIndex));
+            const progress = (visitedLocations.size / LOCATIONS.length) * 100;
+            
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = `${progress}%`;
+            progressFill.textContent = `${visitedLocations.size}/${LOCATIONS.length} pavilions`;
+            
+            if (visitedLocations.size === LOCATIONS.length) {
+                document.getElementById('completeBtn').style.display = 'block';
+            }
+        }
+
+        function renderLocationList() {
+            const visitedLocations = new Set(drinks.map(d => d.locationIndex));
+            const container = document.getElementById('locationList');
+            
+            container.innerHTML = LOCATIONS.map((loc, index) => {
+                const visited = visitedLocations.has(index);
+                const isNext = !visited && (visitedLocations.size === 0 ? index === 0 : 
+                    index === Math.min(...Array.from({length: LOCATIONS.length}, (_, i) => i).filter(i => !visitedLocations.has(i))));
+                
+                return `
+                    <div class="location-item ${visited ? 'visited' : ''} ${isNext ? 'current' : ''}">
+                        <div class="location-header">
+                            <div class="location-number">${index + 1}</div>
+                            <div class="location-name">${loc.name}</div>
+                        </div>
+                        <div class="location-drinks">${loc.drinks.join(' • ')}</div>
+                        <div style="color: #666; font-size: 0.9em; font-style: italic;">${loc.notes}</div>
+                        ${loc.specialNote ? `<div class="special-note">⚠️ ${loc.specialNote}</div>` : ''}
+                        ${visited ? '<div style="margin-top: 8px; color: #10b981; font-weight: 600;">✓ Visited</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderDrinksList() {
+            const container = document.getElementById('drinksList');
+            
+            if (drinks.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">No drinks tracked yet. Start your journey!</p>';
+                return;
+            }
+            
+            const sortedDrinks = [...drinks].sort((a, b) => b.timestamp - a.timestamp);
+            
+            container.innerHTML = sortedDrinks.map(drink => `
+                <div class="drink-item">
+                    <div class="drink-header">
+                        <div>
+                            <div class="drink-name">${drink.drinkName}</div>
+                            <div style="color: #666; font-size: 0.9em;">${drink.location}</div>
+                        </div>
+                        <div class="drink-rating">${'★'.repeat(drink.rating)}</div>
+                    </div>
+                    <div style="color: #666; font-size: 0.9em; margin-bottom: 8px;">${drink.date} at ${drink.time}</div>
+                    ${drink.notes ? `<div style="color: #666; font-style: italic;">"${drink.notes}"</div>` : ''}
+                    <button class="btn btn-danger" onclick="deleteDrink(${drink.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteDrink(id) {
+            if (confirm('Delete this drink?')) {
+                drinks = drinks.filter(d => d.id !== id);
+                saveData();
+                updateDisplay();
+            }
+        }
+
+        function completeCrawl() {
+            const visitedLocations = new Set(drinks.map(d => d.locationIndex));
+            if (visitedLocations.size === LOCATIONS.length) {
+                completions++;
+                saveData();
+                alert(`Congratulations! You've completed Drinking Around the World!\n\nTotal completions: ${completions}x`);
+                updateDisplay();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

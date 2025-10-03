@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disney Pub Crawl Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .user-greeting {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+        
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: #7c3aed;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section-title {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .crawl-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .crawl-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .crawl-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3);
+            border-color: #7c3aed;
+        }
+        
+        .crawl-card h3 {
+            color: #7c3aed;
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+        
+        .crawl-card p {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .crawl-stats {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 15px;
+            border-top: 2px solid #f0f0f0;
+            font-size: 0.9em;
+        }
+        
+        .crawl-stat {
+            text-align: center;
+        }
+        
+        .crawl-stat .label {
+            color: #999;
+            font-size: 0.85em;
+        }
+        
+        .crawl-stat .number {
+            color: #7c3aed;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+        
+        .completion-badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+        
+        .export-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .export-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(124, 58, 237, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .welcome-modal .modal-content {
+            text-align: center;
+        }
+        
+        .welcome-modal h2 {
+            color: #7c3aed;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        @media (max-width: 768px) {
+            .crawl-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Disney Pub Crawl Tracker</h1>
+            <p>Your magical adventure hub for all Disney pub crawls</p>
+            <div class="user-greeting" id="userGreeting"></div>
+        </div>
+        
+        <div class="stats-bar">
+            <div class="stat-card">
+                <h3>Total Drinks</h3>
+                <div class="value" id="totalDrinks">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Crawls Completed</h3>
+                <div class="value" id="totalCompletions">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Unique Locations</h3>
+                <div class="value" id="uniqueLocations">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Average Rating</h3>
+                <div class="value" id="avgRating">-</div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <h2 class="section-title">Choose Your Adventure</h2>
+            
+            <div class="crawl-grid">
+                <a href="monorail-crawl.html" class="crawl-card">
+                    <h3>Monorail Bar Crawl <span class="completion-badge" id="monorail-badge" style="display:none;"></span></h3>
+                    <p>The classic resort monorail route through Contemporary, Polynesian, and Grand Floridian</p>
+                    <div class="crawl-stats">
+                        <div class="crawl-stat">
+                            <div class="label">Locations</div>
+                            <div class="number">6</div>
+                        </div>
+                        <div class="crawl-stat">
+                            <div class="label">Your Drinks</div>
+                            <div class="number" id="monorail-drinks">0</div>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="disney-springs-crawl.html" class="crawl-card">
+                    <h3>Disney Springs Crawl <span class="completion-badge" id="springs-badge" style="display:none;"></span></h3>
+                    <p>Customizable crawl through Disney Springs entertainment district</p>
+                    <div class="crawl-stats">
+                        <div class="crawl-stat">
+                            <div class="label">Locations</div>
+                            <div class="number">6</div>
+                        </div>
+                        <div class="crawl-stat">
+                            <div class="label">Your Drinks</div>
+                            <div class="number" id="springs-drinks">0</div>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="skyliner-crawl.html" class="crawl-card">
+                    <h3>Skyliner Bar Crawl <span class="completion-badge" id="skyliner-badge" style="display:none;"></span></h3>
+                    <p>Gondola system route through Caribbean Beach, Riviera, Pop Century, and more</p>
+                    <div class="crawl-stats">
+                        <div class="crawl-stat">
+                            <div class="label">Locations</div>
+                            <div class="number">7</div>
+                        </div>
+                        <div class="crawl-stat">
+                            <div class="label">Your Drinks</div>
+                            <div class="number" id="skyliner-drinks">0</div>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="bay-lake-crawl.html" class="crawl-card">
+                    <h3>Bay Lake Bar Crawl <span class="completion-badge" id="baylake-badge" style="display:none;"></span></h3>
+                    <p>Boat and monorail combo through Wilderness Lodge, Fort Wilderness, and more</p>
+                    <div class="crawl-stats">
+                        <div class="crawl-stat">
+                            <div class="label">Locations</div>
+                            <div class="number">5</div>
+                        </div>
+                        <div class="crawl-stat">
+                            <div class="label">Your Drinks</div>
+                            <div class="number" id="baylake-drinks">0</div>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="boardwalk-crawl.html" class="crawl-card">
+                    <h3>Boardwalk Bar Crawl <span class="completion-badge" id="boardwalk-badge" style="display:none;"></span></h3>
+                    <p>Walk around Crescent Lake visiting Yacht Club, Beach Club, and BoardWalk</p>
+                    <div class="crawl-stats">
+                        <div class="crawl-stat">
+                            <div class="label">Locations</div>
+                            <div class="number">3</div>
+                        </div>
+                        <div class="crawl-stat">
+                            <div class="label">Your Drinks</div>
+                            <div class="number" id="boardwalk-drinks">0</div>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="resort-crawl.html" class="crawl-card">
+                    <h3>Disney Resort Crawl <span class="completion-badge" id="resort-badge" style="display:none;"></span></h3>
+                    <p>Budget-friendly route using free Disney transportation to visit multiple resorts</p>
+                    <div class="crawl-stats">
+                        <div class="crawl-stat">
+                            <div class="label">Locations</div>
+                            <div class="number">7</div>
+                        </div>
+                        <div class="crawl-stat">
+                            <div class="label">Your Drinks</div>
+                            <div class="number" id="resort-drinks">0</div>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="epcot-crawl.html" class="crawl-card">
+                    <h3>EPCOT Around the World <span class="completion-badge" id="epcot-badge" style="display:none;"></span></h3>
+                    <p>The legendary tradition - sample beverages from eleven World Showcase pavilions</p>
+                    <div class="crawl-stats">
+                        <div class="crawl-stat">
+                            <div class="label">Locations</div>
+                            <div class="number">11</div>
+                        </div>
+                        <div class="crawl-stat">
+                            <div class="label">Your Drinks</div>
+                            <div class="number" id="epcot-drinks">0</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="export-section">
+                <h2>Export & Manage Data</h2>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="exportAllData()">Download All Data</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">Import Data</button>
+                    <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+                    <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal welcome-modal" id="welcomeModal">
+        <div class="modal-content">
+            <h2>Welcome!</h2>
+            <p>Ready to track your Disney pub crawl adventures? What's your name?</p>
+            <form id="nameForm">
+                <div class="form-group">
+                    <input type="text" id="userName" placeholder="Enter your name" required style="text-align: center; font-size: 1.2em;">
+                </div>
+                <button type="submit" class="btn btn-primary">Let's Go!</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let userName = '';
+        
+        function init() {
+            const savedName = localStorage.getItem('disneyPubCrawlUserName');
+            if (savedName) {
+                userName = savedName;
+                document.getElementById('userGreeting').textContent = `Welcome back, ${userName}!`;
+                updateStats();
+            } else {
+                document.getElementById('welcomeModal').classList.add('active');
+            }
+        }
+        
+        document.getElementById('nameForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            userName = document.getElementById('userName').value.trim();
+            if (userName) {
+                localStorage.setItem('disneyPubCrawlUserName', userName);
+                document.getElementById('userGreeting').textContent = `Welcome, ${userName}!`;
+                document.getElementById('welcomeModal').classList.remove('active');
+                updateStats();
+            }
+        });
+        
+        function updateStats() {
+            const crawls = {
+                'monorail': 'Monorail Bar Crawl',
+                'springs': 'Disney Springs Pub Crawl',
+                'skyliner': 'Disney Skyliner Bar Crawl',
+                'baylake': 'Bay Lake Bar Crawl',
+                'boardwalk': 'Boardwalk Bar Crawl',
+                'resort': 'Disney Resort Bar Crawl',
+                'epcot': 'EPCOT Drinking Around the World'
+            };
+            
+            let totalDrinks = 0;
+            let totalCompletions = 0;
+            let allLocations = new Set();
+            let totalRating = 0;
+            let ratingCount = 0;
+            
+            Object.keys(crawls).forEach(key => {
+                const crawlData = localStorage.getItem(`${key}CrawlData`);
+                if (crawlData) {
+                    const data = JSON.parse(crawlData);
+                    const drinks = data.drinks || [];
+                    const completions = data.completions || 0;
+                    
+                    totalDrinks += drinks.length;
+                    totalCompletions += completions;
+                    
+                    drinks.forEach(d => {
+                        allLocations.add(d.location);
+                        if (d.rating) {
+                            totalRating += d.rating;
+                            ratingCount++;
+                        }
+                    });
+                    
+                    document.getElementById(`${key}-drinks`).textContent = drinks.length;
+                    
+                    if (completions > 0) {
+                        const badge = document.getElementById(`${key}-badge`);
+                        badge.textContent = `✓ ${completions}x`;
+                        badge.style.display = 'inline-block';
+                    }
+                }
+            });
+            
+            document.getElementById('totalDrinks').textContent = totalDrinks;
+            document.getElementById('totalCompletions').textContent = totalCompletions;
+            document.getElementById('uniqueLocations').textContent = allLocations.size;
+            document.getElementById('avgRating').textContent = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : '-';
+        }
+        
+        function exportAllData() {
+            const allData = {
+                userName: userName,
+                exportDate: new Date().toISOString(),
+                crawls: {}
+            };
+            
+            const crawlKeys = ['monorail', 'springs', 'skyliner', 'baylake', 'boardwalk', 'resort', 'epcot'];
+            crawlKeys.forEach(key => {
+                const data = localStorage.getItem(`${key}CrawlData`);
+                if (data) {
+                    allData.crawls[key] = JSON.parse(data);
+                }
+            });
+            
+            const dataStr = JSON.stringify(allData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `disney-pub-crawl-complete-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    
+                    if (imported.userName) {
+                        localStorage.setItem('disneyPubCrawlUserName', imported.userName);
+                        userName = imported.userName;
+                    }
+                    
+                    if (imported.crawls) {
+                        Object.keys(imported.crawls).forEach(key => {
+                            localStorage.setItem(`${key}CrawlData`, JSON.stringify(imported.crawls[key]));
+                        });
+                    }
+                    
+                    alert('Data imported successfully!');
+                    location.reload();
+                } catch (error) {
+                    alert('Error importing data: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+        
+        function clearAllData() {
+            if (confirm('Are you sure you want to delete ALL data from ALL crawls? This cannot be undone!')) {
+                if (confirm('Really sure? This will permanently delete everything!')) {
+                    const crawlKeys = ['monorail', 'springs', 'skyliner', 'baylake', 'boardwalk', 'resort', 'epcot'];
+                    crawlKeys.forEach(key => {
+                        localStorage.removeItem(`${key}CrawlData`);
+                    });
+                    alert('All data has been cleared.');
+                    location.reload();
+                }
+            }
+        }
+        
+        init();
+    </script>
+</body>
+</html>
