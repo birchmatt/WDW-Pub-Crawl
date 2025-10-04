@@ -55,6 +55,10 @@
             background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%); 
             color: white; 
             margin-top: 10px;
+            width: 100%;
+        }
+        .btn:active {
+            transform: scale(0.98);
         }
         .form-group { margin-bottom: 20px; }
         .form-group label { 
@@ -77,6 +81,12 @@
             margin-bottom: 15px; 
             box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
         }
+        .drink-photo {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
         .progress-bar { 
             background: #e9ecef; 
             height: 30px; 
@@ -93,6 +103,13 @@
             align-items: center; 
             justify-content: center; 
             transition: width 0.3s;
+        }
+        .photo-preview {
+            margin-top: 10px;
+        }
+        .photo-preview img {
+            max-width: 200px;
+            border-radius: 8px;
         }
     </style>
 </head>
@@ -117,8 +134,8 @@
                     <label>Location</label>
                     <select id="location" required>
                         <option value="">Choose location...</option>
-                        <option value="0">Jaleo by José Andrés</option>
-                        <option value="1">Jock Lindsey's Hangar Bar</option>
+                        <option value="0">Jaleo by Jose Andres</option>
+                        <option value="1">Jock Lindseys Hangar Bar</option>
                         <option value="2">The Boathouse</option>
                         <option value="3">Raglan Road</option>
                         <option value="4">Morimoto Asia</option>
@@ -133,12 +150,21 @@
                 
                 <div class="form-group">
                     <label>Rating (1-10)</label>
-                    <input type="number" id="rating" min="1" max="10" required>
+                    <input type="number" id="rating" min="1" max="10" required value="5">
                 </div>
                 
                 <div class="form-group">
                     <label>Notes</label>
                     <textarea id="notes" placeholder="How was it?"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Photo (optional)</label>
+                    <input type="file" id="photo" accept="image/*">
+                    <div id="photoPreview" class="photo-preview" style="display: none;">
+                        <img id="previewImg">
+                        <button type="button" onclick="clearPhoto()" style="padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 8px; margin-top: 8px;">Remove Photo</button>
+                    </div>
                 </div>
                 
                 <button type="submit" class="btn">Add Drink</button>
@@ -151,70 +177,156 @@
 
     <script>
         const LOCATIONS = [
-            'Jaleo by José Andrés',
-            'Jock Lindsey\'s Hangar Bar',
+            'Jaleo by Jose Andres',
+            'Jock Lindseys Hangar Bar',
             'The Boathouse',
             'Raglan Road',
             'Morimoto Asia',
             'Dockside Margaritas'
         ];
 
-        let drinks = JSON.parse(localStorage.getItem('springsCrawl') || '[]');
+        let drinks = [];
+        let currentPhotoData = null;
+
+        function loadData() {
+            try {
+                const saved = localStorage.getItem('springsCrawl');
+                if (saved) {
+                    drinks = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error('Error loading data:', e);
+                drinks = [];
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('springsCrawl', JSON.stringify(drinks));
+            } catch (e) {
+                console.error('Error saving data:', e);
+                alert('Error saving data. Your storage may be full.');
+            }
+        }
 
         function updateDisplay() {
             const visited = new Set(drinks.map(d => d.locationIndex));
-            const progress = (visited.size / 6) * 100;
+            const progress = Math.round((visited.size / 6) * 100);
             
             document.getElementById('progressFill').style.width = progress + '%';
             document.getElementById('progressFill').textContent = visited.size + '/6 locations';
             
-            document.getElementById('locationList').innerHTML = LOCATIONS.map((loc, i) => 
-                `<div class="location-item ${visited.has(i) ? 'visited' : ''}">
-                    <div class="location-name">${i + 1}. ${loc}</div>
-                    ${visited.has(i) ? '<div style="color: #10b981; font-weight: 600;">✓ Visited</div>' : ''}
-                </div>`
-            ).join('');
+            let locationHTML = '';
+            for (let i = 0; i < LOCATIONS.length; i++) {
+                const isVisited = visited.has(i);
+                locationHTML += '<div class="location-item' + (isVisited ? ' visited' : '') + '">';
+                locationHTML += '<div class="location-name">' + (i + 1) + '. ' + LOCATIONS[i] + '</div>';
+                if (isVisited) {
+                    locationHTML += '<div style="color: #10b981; font-weight: 600;">✓ Visited</div>';
+                }
+                locationHTML += '</div>';
+            }
+            document.getElementById('locationList').innerHTML = locationHTML;
             
-            document.getElementById('drinksList').innerHTML = drinks.length === 0 
-                ? '<p style="color: #999; text-align: center; padding: 40px;">No drinks yet!</p>'
-                : drinks.slice().reverse().map(d => 
-                    `<div class="drink-item">
-                        <strong>${d.drinkName}</strong><br>
-                        <span style="color: #666;">${LOCATIONS[d.locationIndex]}</span><br>
-                        <span style="color: #fbbf24;">${'★'.repeat(d.rating)}</span><br>
-                        ${d.notes ? '<em>' + d.notes + '</em><br>' : ''}
-                        <button class="btn" onclick="deleteDrink(${d.id})" style="background: #dc3545; padding: 8px 16px; font-size: 0.9em;">Delete</button>
-                    </div>`
-                ).join('');
+            if (drinks.length === 0) {
+                document.getElementById('drinksList').innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">No drinks yet!</p>';
+            } else {
+                let drinksHTML = '';
+                const sortedDrinks = drinks.slice().reverse();
+                for (let i = 0; i < sortedDrinks.length; i++) {
+                    const d = sortedDrinks[i];
+                    drinksHTML += '<div class="drink-item">';
+                    drinksHTML += '<strong>' + d.drinkName + '</strong><br>';
+                    drinksHTML += '<span style="color: #666;">' + LOCATIONS[d.locationIndex] + '</span><br>';
+                    drinksHTML += '<span style="color: #fbbf24;">' + '★'.repeat(d.rating) + '</span><br>';
+                    if (d.photo) {
+                        drinksHTML += '<img src="' + d.photo + '" class="drink-photo" onclick="openPhotoModal(' + d.id + ')">';
+                    }
+                    if (d.notes) {
+                        drinksHTML += '<em>' + d.notes + '</em><br>';
+                    }
+                    drinksHTML += '<button onclick="deleteDrink(' + d.id + ')" style="background: #dc3545; padding: 8px 16px; font-size: 0.9em; border: none; color: white; border-radius: 8px; margin-top: 10px; cursor: pointer;">Delete</button>';
+                    drinksHTML += '</div>';
+                }
+                document.getElementById('drinksList').innerHTML = drinksHTML;
+            }
+        }
+
+        document.getElementById('photo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    currentPhotoData = event.target.result;
+                    document.getElementById('previewImg').src = currentPhotoData;
+                    document.getElementById('photoPreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function clearPhoto() {
+            currentPhotoData = null;
+            document.getElementById('photo').value = '';
+            document.getElementById('photoPreview').style.display = 'none';
         }
 
         document.getElementById('drinkForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            const locationValue = document.getElementById('location').value;
+            const drinkNameValue = document.getElementById('drinkName').value;
+            const ratingValue = document.getElementById('rating').value;
+            const notesValue = document.getElementById('notes').value;
+            
+            if (!locationValue || !drinkNameValue || !ratingValue) {
+                alert('Please fill in all required fields!');
+                return;
+            }
+            
             const drink = {
                 id: Date.now(),
-                locationIndex: parseInt(document.getElementById('location').value),
-                drinkName: document.getElementById('drinkName').value,
-                rating: parseInt(document.getElementById('rating').value),
-                notes: document.getElementById('notes').value
+                locationIndex: parseInt(locationValue),
+                drinkName: drinkNameValue,
+                rating: parseInt(ratingValue),
+                notes: notesValue,
+                photo: currentPhotoData
             };
             
             drinks.push(drink);
-            localStorage.setItem('springsCrawl', JSON.stringify(drinks));
+            saveData();
             
-            this.reset();
+            document.getElementById('drinkForm').reset();
+            clearPhoto();
             updateDisplay();
-            alert('Drink added!');
+            alert('Drink added successfully!');
         });
 
         function deleteDrink(id) {
             if (confirm('Delete this drink?')) {
-                drinks = drinks.filter(d => d.id !== id);
-                localStorage.setItem('springsCrawl', JSON.stringify(drinks));
+                drinks = drinks.filter(function(d) { return d.id !== id; });
+                saveData();
                 updateDisplay();
             }
         }
 
+        function openPhotoModal(drinkId) {
+            const drink = drinks.find(function(d) { return d.id === drinkId; });
+            if (drink && drink.photo) {
+                const modal = document.createElement('div');
+                modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px;';
+                modal.onclick = function() { document.body.removeChild(modal); };
+                
+                const img = document.createElement('img');
+                img.src = drink.photo;
+                img.style.cssText = 'max-width: 100%; max-height: 100%; border-radius: 8px;';
+                
+                modal.appendChild(img);
+                document.body.appendChild(modal);
+            }
+        }
+
+        loadData();
         updateDisplay();
     </script>
 </body>
