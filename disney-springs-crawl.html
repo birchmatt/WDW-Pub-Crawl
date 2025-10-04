@@ -147,8 +147,19 @@
         
         .location-drinks {
             color: #666;
-            font-size: 0.9em;
+            font-size: 0.85em;
             margin: 10px 0;
+            line-height: 1.4;
+        }
+        
+        .location-food {
+            color: #555;
+            font-size: 0.85em;
+            margin: 8px 0;
+            padding: 8px;
+            background: #fff;
+            border-radius: 5px;
+            line-height: 1.4;
         }
         
         .special-note {
@@ -567,39 +578,45 @@
         const LOCATIONS = [
             {
                 name: "Jaleo by Chef José Andrés",
-                drinks: ["Sangria", "Hand-crafted cocktails"],
-                notes: "Spanish theme, great tapas. Perfect starting spot!",
-                specialNote: "Bar space usually available"
+                drinks: ["Ultimate Gin & Tonic ($18-20)", "Sangria - Glass/Carafe ($18/$48)", "Sake Sangria ($18)", "Spanish Wines & Beers", "Craft Cocktails"],
+                food: ["Tapas Selection", "Gambas al Ajillo (Shrimp)", "Pan con Tomate (Tomato Bread)", "Paella (Multiple Styles)", "Embutidos (Spanish Meats)", "Spanish Cheeses", "Fried Specialties"],
+                notes: "Spanish theme with extensive tapas. Award-winning chef José Andrés' restaurant",
+                specialNote: "Bar space usually available. Weekend brunch with special menu. $40 Magical Dining tasting menu available"
             },
             {
                 name: "Jock Lindsey's Hangar Bar",
-                drinks: ["Wrong Island", "The Mayor's Reserve", "Reggie's Revenge (Midori, mandarin vodka)"],
-                notes: "Aviation-themed, inspired by Indiana Jones. Try the Air Pirate's Cargo Loaded Pretzel!",
-                specialNote: "Happy Hour Mon-Fri 12:00 PM - 3:00 PM"
+                drinks: ["Reggie's Revenge ($15.50)", "The Mayor's Reserve ($17.50)", "Wrong Island ($14.50)", "Hovito Mojito ($15.50)", "Air Pirate's Mule ($16.50)", "The Scottish Professor ($15.50)", "Aviator's Flight (Scotch Tasting) ($18)", "Jock's Old Fashioned ($18)"],
+                food: ["Air Pirate's Cargo Loaded Pretzel ($12)", "Snakebite Sliders ($12)", "Rolling Boulder Meatballs ($12)", "Taco Al Pastor ($13)", "Tuna Poke Tacos ($16.50)", "Chicken on the Egg", "Temple of Bacon (Chocolate-Covered Bacon)"],
+                notes: "Aviation-themed Indiana Jones bar with artifacts. Family-friendly despite being a bar",
+                specialNote: "Happy Hour Mon-Fri 12-3pm. Seasonal overlays (Halloween & Holiday). Try the Mine Car Meatballs!"
             },
             {
                 name: "The Boathouse (Outdoor Bar)",
-                drinks: ["Orange Breeze (specialty martini)", "Strawberry Gin Fizz"],
-                notes: "Upscale nautical theme with views of Amphicars on Village Lake",
-                specialNote: "Watch vintage car watercrafts"
+                drinks: ["Boathouse Bloody Mary ($17)", "Duck Duck Razz ($16)", "Coconut Mojito ($16)", "Blueberry Lemonade ($16)", "Shipwreck ($16)", "American Mule ($15)", "Espresso Martini ($15)", "Orange Crush ($8)"],
+                food: ["Oyster Bar Selection", "Fresh Seafood", "Filet Mignon Sliders ($16)", "Maine Lobster Roll ($36)", "Jumbo Lump Crabcake ($33)", "Key Lime Pie in a Mason Jar ($10)", "Triple Chocolate Layer Cake ($24)"],
+                notes: "Upscale nautical theme with waterfront views. Watch vintage Amphicars on the water",
+                specialNote: "Live music Fri-Sat 8pm-midnight. Brunch Sat-Sun 10am-2pm. Amphicar tours available!"
             },
             {
                 name: "Raglan Road Irish Pub & Restaurant",
-                drinks: ["Pint of Guinness", "Irish craft beer flight", "Iced Irish (Paddy's Irish Whiskey, Bailey's, iced coffee)"],
-                notes: "Lively Irish theme with authentic entertainment. Try Sassy Sausage!",
-                specialNote: "Live Irish dancers and musicians"
+                drinks: ["Pint of Guinness", "Irish Craft Beer Flight", "Iced Irish ($16-18)", "Irish Espresso Martini", "The Florida Split (P1 Vodka, Mango Liqueur, Ice Cream)", "Irish Whiskeys", "Cocktails"],
+                food: ["Fish & Chips (Premium North Atlantic Cod)", "Shepherd's Pie", "OMG Burger (Dry-Aged Beef)", "Irish Egg (Guinness Sausage)", "Nom Nom Wings", "Scallop Forest ($29)", "Got Chocolate (Dessert)", "Ger's Bread & Butter Pudding"],
+                notes: "Authentic Irish pub built in Ireland. Live music & dancers 7 nights/week",
+                specialNote: "Rollicking Raglan Brunch Sat-Sun 10am-3pm with live dancers! Entertainment daily 5-10pm"
             },
             {
                 name: "Morimoto Asia (Upstairs Bar)",
-                drinks: ["Morimoto Signature Hazelnut Brown Ale", "Japanese Whiskeys"],
-                notes: "Stunning interior design focused on sushi and noodle bowls",
-                specialNote: "Upstairs bar has different atmosphere"
+                drinks: ["Smoked Old Fashioned ($34)", "Mars Shinshu Japanese Whiskey ($20)", "Matcha Lavender Cocktail ($19)", "Mezcal Cocktails ($19)", "Japanese Whisky Selection ($16-170)", "Sake Sangria ($18/$48)", "Coffee Cocktails ($19)"],
+                food: ["Sushi & Sashimi (Fresh Daily)", "Peking Duck (Whole Duck)", "Morimoto Buri-Bop (Yellowtail Rice Bowl) ($36)", "Duck Ramen ($20)", "Lo Mein Noodles", "Kung Pao Cauliflower ($16)", "Asian Tapas"],
+                notes: "Iron Chef Morimoto's restaurant. Stunning interior with upstairs bar and outdoor terrace",
+                specialNote: "Upstairs bar has best Disney Springs lagoon views. Street Food window outside for quick bites"
             },
             {
                 name: "Dockside Margaritas",
-                drinks: ["Habanero Lime Margarita", "Orange Frost (non-alcoholic dessert drink)"],
-                notes: "Waterfront shack with live entertainment",
-                specialNote: "Near Ghirardelli Ice Cream & Chocolate Shop"
+                drinks: ["Habanero Lime Margarita ($18)", "Frozen Strawberry Margarita ($17)", "Sunset Margarita ($18)", "Watermelon Margarita ($17.50)", "Orange Grove Rum Runner ($16)", "Dockside Iced Tea ($16.50)", "Key Lime Freeze ($17)", "Seasonal Margaritas"],
+                food: ["Limited snacks available", "Nearby Ghirardelli Ice Cream & Chocolate Shop", "Orange Frost (Non-Alcoholic Dessert Drink)"],
+                notes: "1960s Florida fruit-stand themed waterfront bar with live entertainment",
+                specialNote: "Great outdoor seating with Buena Vista Cove views. Live music during most hours. Walk to Ghirardelli for dessert!"
             }
         ];
 
@@ -807,9 +824,10 @@
                             <div class="location-number">${index + 1}</div>
                             <div class="location-name">${loc.name}</div>
                         </div>
-                        <div class="location-drinks">${loc.drinks.join(' • ')}</div>
+                        <div class="location-drinks"><strong>🍹 Drinks:</strong> ${loc.drinks.slice(0, 3).join(' • ')}${loc.drinks.length > 3 ? ` • +${loc.drinks.length - 3} more` : ''}</div>
+                        ${loc.food ? `<div class="location-food"><strong>🍽️ Food:</strong> ${loc.food.slice(0, 3).join(' • ')}${loc.food.length > 3 ? ` • +${loc.food.length - 3} more` : ''}</div>` : ''}
                         <div style="color: #666; font-size: 0.9em; font-style: italic;">${loc.notes}</div>
-                        ${loc.specialNote ? `<div class="special-note">⚠️ ${loc.specialNote}</div>` : ''}
+                        ${loc.specialNote ? `<div class="special-note">ℹ️ ${loc.specialNote}</div>` : ''}
                         ${visited ? '<div style="margin-top: 8px; color: #10b981; font-weight: 600;">✓ Visited</div>' : ''}
                     </div>
                 `;
