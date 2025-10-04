@@ -109,7 +109,7 @@
         
         .location-header {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 15px;
             margin-bottom: 10px;
         }
@@ -117,6 +117,7 @@
         .location-number {
             width: 40px;
             height: 40px;
+            min-width: 40px;
             border-radius: 50%;
             background: #e9ecef;
             display: flex;
@@ -140,6 +141,8 @@
             font-weight: 600;
             color: #333;
             font-size: 1.1em;
+            flex: 1;
+            word-break: break-word;
         }
         
         .location-drinks {
@@ -263,15 +266,19 @@
         
         .star-rating {
             display: flex;
+            flex-wrap: wrap;
             gap: 5px;
             font-size: 2em;
             cursor: pointer;
+            max-width: 280px;
         }
         
         .star {
             color: #ddd;
             transition: color 0.2s;
             user-select: none;
+            flex: 0 0 calc(20% - 5px);
+            text-align: center;
         }
         
         .star.active {
@@ -422,6 +429,122 @@
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .form-section {
+                padding: 20px;
+            }
+            
+            .location-name {
+                font-size: 0.95em;
+            }
+            
+            .location-number {
+                width: 35px;
+                height: 35px;
+                min-width: 35px;
+                font-size: 1em;
+            }
+            
+            .star-rating {
+                font-size: 1.5em;
+                max-width: 210px;
+            }
+            
+            .rating-display {
+                font-size: 1.2em;
+                margin-left: 10px;
+            }
+            
+            .drink-detail {
+                padding: 8px;
+            }
+            
+            .drink-detail-name {
+                font-size: 0.9em;
+            }
+            
+            .drink-detail-price {
+                font-size: 0.85em;
+            }
+            
+            .drink-detail-desc {
+                font-size: 0.8em;
+            }
+            
+            .location-section-title {
+                font-size: 0.85em;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+            
+            .drink-photo {
+                max-width: 100%;
+            }
+            
+            .photo-modal-content {
+                max-width: 95%;
+                max-height: 85%;
+            }
+            
+            .photo-modal-close {
+                top: 10px;
+                right: 15px;
+                font-size: 30px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.3em;
+            }
+            
+            .header p {
+                font-size: 0.9em;
+            }
+            
+            .location-name {
+                font-size: 0.85em;
+            }
+            
+            .star-rating {
+                font-size: 1.3em;
+                max-width: 175px;
+            }
+            
+            .rating-display {
+                font-size: 1em;
+            }
+            
+            .drink-item {
+                padding: 15px;
+            }
+            
+            .drink-name {
+                font-size: 1em;
+            }
+            
+            .drink-rating {
+                font-size: 1em;
             }
         }
     </style>
