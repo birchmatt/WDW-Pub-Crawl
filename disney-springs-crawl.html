@@ -1,82 +1,221 @@
-function renderLocationList() {
-            const visitedLocations = new Set(drinks.map(d => d.locationIndex));
-            const container = document.getElementById('locationList');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disney Springs Pub Crawl</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 15px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3); 
+            overflow: hidden; 
+        }
+        .header { 
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%); 
+            color: white; 
+            padding: 30px; 
+        }
+        .header h1 { font-size: 2em; margin-bottom: 10px; }
+        .header p { opacity: 0.9; }
+        .content { padding: 30px; }
+        .location-item { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            border-left: 5px solid #e9ecef; 
+            margin-bottom: 15px; 
+        }
+        .location-item.visited { 
+            border-left-color: #10b981; 
+            background: #f0fdf4; 
+        }
+        .location-name { 
+            font-weight: 600; 
+            color: #333; 
+            font-size: 1.1em; 
+            margin-bottom: 10px; 
+        }
+        .btn { 
+            padding: 12px 30px; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 1em; 
+            font-weight: 600; 
+            cursor: pointer; 
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%); 
+            color: white; 
+            margin-top: 10px;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            color: #555; 
+            font-weight: 600; 
+        }
+        .form-group select, .form-group input, .form-group textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 8px; 
+            font-size: 1em; 
+        }
+        .drink-item { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin-bottom: 15px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .progress-bar { 
+            background: #e9ecef; 
+            height: 30px; 
+            border-radius: 15px; 
+            overflow: hidden; 
+            margin: 15px 0; 
+        }
+        .progress-fill { 
+            background: linear-gradient(90deg, #7c3aed 0%, #1e3a8a 100%); 
+            height: 100%; 
+            color: white; 
+            font-weight: bold; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Disney Springs Pub Crawl</h1>
+            <p>Track your journey through Disney Springs!</p>
+        </div>
+        
+        <div class="content">
+            <h2>Your Progress</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%">0/6 locations</div>
+            </div>
             
-            container.innerHTML = LOCATIONS.map((loc, index) => {
-                const visited = visitedLocations.has(index);
-                const isNext = !visited && (visitedLocations.size === 0 ? index === 0 : 
-                    index === Math.min(...Array.from({length: LOCATIONS.length}, (_, i) => i).filter(i => !visitedLocations.has(i))));
+            <div id="locationList"></div>
+            
+            <h2 style="margin-top: 30px;">Add Drink</h2>
+            <form id="drinkForm">
+                <div class="form-group">
+                    <label>Location</label>
+                    <select id="location" required>
+                        <option value="">Choose location...</option>
+                        <option value="0">Jaleo by José Andrés</option>
+                        <option value="1">Jock Lindsey's Hangar Bar</option>
+                        <option value="2">The Boathouse</option>
+                        <option value="3">Raglan Road</option>
+                        <option value="4">Morimoto Asia</option>
+                        <option value="5">Dockside Margaritas</option>
+                    </select>
+                </div>
                 
-                return `
-                    <div class="location-item ${visited ? 'visited' : ''} ${isNext ? 'current' : ''}">
-                        <div class="location-header">
-                            <div class="location-number">${index + 1}</div>
-                            <div class="location-name">${loc.name}</div>
-                        </div>
-                        <div class="location-drinks"><strong>🍹 Drinks:</strong> ${loc.drinks.slice(0, 3).join(' • ')}${loc.drinks.length > 3 ? ` • +${loc.drinks.length - 3} more` : ''}</div>
-                        ${loc.food ? `<div class="location-food"><strong>🍽️ Food:</strong> ${loc.food.slice(0, 3).join(' • ')}${loc.food.length > 3 ? ` • +${loc.food.length - 3} more` : ''}</div>` : ''}
-                        <div style="color: #666; font-size: 0.9em; font-style: italic;">${loc.notes}</div>
-                        ${loc.specialNote ? `<div class="special-note">ℹ️ ${loc.specialNote}</div>` : ''}
-                        ${visited ? '<div style="margin-top: 8px; color: #10b981; font-weight: 600;">✓ Visited</div>' : ''}
-                    </div>
-                `;
-            }).join('');
+                <div class="form-group">
+                    <label>Drink Name</label>
+                    <input type="text" id="drinkName" required placeholder="Enter drink name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Rating (1-10)</label>
+                    <input type="number" id="rating" min="1" max="10" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="notes" placeholder="How was it?"></textarea>
+                </div>
+                
+                <button type="submit" class="btn">Add Drink</button>
+            </form>
+            
+            <h2 style="margin-top: 30px;">Your Drinks</h2>
+            <div id="drinksList"></div>
+        </div>
+    </div>
+
+    <script>
+        const LOCATIONS = [
+            'Jaleo by José Andrés',
+            'Jock Lindsey\'s Hangar Bar',
+            'The Boathouse',
+            'Raglan Road',
+            'Morimoto Asia',
+            'Dockside Margaritas'
+        ];
+
+        let drinks = JSON.parse(localStorage.getItem('springsCrawl') || '[]');
+
+        function updateDisplay() {
+            const visited = new Set(drinks.map(d => d.locationIndex));
+            const progress = (visited.size / 6) * 100;
+            
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressFill').textContent = visited.size + '/6 locations';
+            
+            document.getElementById('locationList').innerHTML = LOCATIONS.map((loc, i) => 
+                `<div class="location-item ${visited.has(i) ? 'visited' : ''}">
+                    <div class="location-name">${i + 1}. ${loc}</div>
+                    ${visited.has(i) ? '<div style="color: #10b981; font-weight: 600;">✓ Visited</div>' : ''}
+                </div>`
+            ).join('');
+            
+            document.getElementById('drinksList').innerHTML = drinks.length === 0 
+                ? '<p style="color: #999; text-align: center; padding: 40px;">No drinks yet!</p>'
+                : drinks.slice().reverse().map(d => 
+                    `<div class="drink-item">
+                        <strong>${d.drinkName}</strong><br>
+                        <span style="color: #666;">${LOCATIONS[d.locationIndex]}</span><br>
+                        <span style="color: #fbbf24;">${'★'.repeat(d.rating)}</span><br>
+                        ${d.notes ? '<em>' + d.notes + '</em><br>' : ''}
+                        <button class="btn" onclick="deleteDrink(${d.id})" style="background: #dc3545; padding: 8px 16px; font-size: 0.9em;">Delete</button>
+                    </div>`
+                ).join('');
         }
 
-        function renderDrinksList() {
-            const container = document.getElementById('drinksList');
+        document.getElementById('drinkForm').addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            if (drinks.length === 0) {
-                container.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">No drinks tracked yet. Start your crawl!</p>';
-                return;
-            }
+            const drink = {
+                id: Date.now(),
+                locationIndex: parseInt(document.getElementById('location').value),
+                drinkName: document.getElementById('drinkName').value,
+                rating: parseInt(document.getElementById('rating').value),
+                notes: document.getElementById('notes').value
+            };
             
-            const sortedDrinks = [...drinks].sort((a, b) => b.timestamp - a.timestamp);
+            drinks.push(drink);
+            localStorage.setItem('springsCrawl', JSON.stringify(drinks));
             
-            container.innerHTML = sortedDrinks.map(drink => `
-                <div class="drink-item">
-                    <div class="drink-header">
-                        <div>
-                            <div class="drink-name">${drink.drinkName}</div>
-                            <div style="color: #666; font-size: 0.9em;">${drink.location}</div>
-                        </div>
-                        <div class="drink-rating">${'★'.repeat(drink.rating)}</div>
-                    </div>
-                    <div style="color: #666; font-size: 0.9em; margin-bottom: 8px;">${drink.date} at ${drink.time}</div>
-                    ${drink.photo ? `<img src="${drink.photo}" class="drink-photo" onclick="openPhotoModal(${drink.id})" alt="Drink photo" data-drink-id="${drink.id}">` : ''}
-                    ${drink.notes ? `<div style="color: #666; font-style: italic; margin-top: 8px;">"${drink.notes}"</div>` : ''}
-                    <button class="btn btn-danger" onclick="deleteDrink(${drink.id})" style="margin-top: 10px;">Delete</button>
-                </div>
-            `).join('');
-        }
-        
-        function openPhotoModal(drinkId) {
-            const drink = drinks.find(d => d.id === drinkId);
-            if (drink && drink.photo) {
-                document.getElementById('modalImage').src = drink.photo;
-                document.getElementById('photoModal').style.display = 'block';
-            }
-        }
+            this.reset();
+            updateDisplay();
+            alert('Drink added!');
+        });
 
         function deleteDrink(id) {
             if (confirm('Delete this drink?')) {
                 drinks = drinks.filter(d => d.id !== id);
-                saveData();
+                localStorage.setItem('springsCrawl', JSON.stringify(drinks));
                 updateDisplay();
             }
         }
 
-        function completeCrawl() {
-            const visitedLocations = new Set(drinks.map(d => d.locationIndex));
-            if (visitedLocations.size === LOCATIONS.length) {
-                completions++;
-                saveData();
-                alert(`Congratulations! You've completed the Disney Springs Pub Crawl!\n\nTotal completions: ${completions}x`);
-                updateDisplay();
-            }
-        }
-
-        init();
+        updateDisplay();
     </script>
 </body>
 </html>
