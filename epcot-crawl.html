@@ -109,7 +109,7 @@
         
         .location-header {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 15px;
             margin-bottom: 10px;
         }
@@ -117,6 +117,7 @@
         .location-number {
             width: 40px;
             height: 40px;
+            min-width: 40px;
             border-radius: 50%;
             background: #e9ecef;
             display: flex;
@@ -140,6 +141,8 @@
             font-weight: 600;
             color: #333;
             font-size: 1.1em;
+            flex: 1;
+            word-break: break-word;
         }
         
         .location-drinks {
@@ -203,15 +206,19 @@
         
         .star-rating {
             display: flex;
+            flex-wrap: wrap;
             gap: 5px;
             font-size: 2em;
             cursor: pointer;
+            max-width: 280px;
         }
         
         .star {
             color: #ddd;
             transition: color 0.2s;
             user-select: none;
+            flex: 0 0 calc(20% - 5px);
+            text-align: center;
         }
         
         .star.active {
@@ -289,6 +296,72 @@
             font-size: 1.2em;
         }
         
+        .drink-photo {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 8px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .drink-photo:hover {
+            transform: scale(1.02);
+        }
+        
+        .photo-preview {
+            margin-top: 10px;
+        }
+        
+        .photo-preview img {
+            max-width: 200px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        
+        .photo-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .photo-modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .photo-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .photo-modal-close:hover {
+            color: #bbb;
+        }
+        
         .hidden {
             display: none;
         }
@@ -296,6 +369,102 @@
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .form-section {
+                padding: 20px;
+            }
+            
+            .location-name {
+                font-size: 0.95em;
+            }
+            
+            .location-number {
+                width: 35px;
+                height: 35px;
+                min-width: 35px;
+                font-size: 1em;
+            }
+            
+            .star-rating {
+                font-size: 1.5em;
+                max-width: 210px;
+            }
+            
+            .rating-display {
+                font-size: 1.2em;
+                margin-left: 10px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+            
+            .drink-photo {
+                max-width: 100%;
+            }
+            
+            .photo-modal-content {
+                max-width: 95%;
+                max-height: 85%;
+            }
+            
+            .photo-modal-close {
+                top: 10px;
+                right: 15px;
+                font-size: 30px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.3em;
+            }
+            
+            .header p {
+                font-size: 0.9em;
+            }
+            
+            .location-name {
+                font-size: 0.85em;
+            }
+            
+            .star-rating {
+                font-size: 1.3em;
+                max-width: 175px;
+            }
+            
+            .rating-display {
+                font-size: 1em;
+            }
+            
+            .drink-item {
+                padding: 15px;
+            }
+            
+            .drink-name {
+                font-size: 1em;
+            }
+            
+            .drink-rating {
+                font-size: 1em;
             }
         }
     </style>
@@ -368,6 +537,15 @@
                         <input type="hidden" id="rating" value="0">
                     </div>
                     
+                    <div class="form-group">
+                        <label for="photo">📸 Photo (optional)</label>
+                        <input type="file" id="photo" accept="image/*">
+                        <div id="photoPreview" class="photo-preview" style="display: none;">
+                            <img id="previewImg">
+                            <button type="button" class="btn btn-danger" onclick="clearPhoto()" style="display: block; margin-top: 8px;">Remove Photo</button>
+                        </div>
+                    </div>
+                    
                     <button type="submit" class="btn btn-primary">Add Drink</button>
                 </form>
             </div>
@@ -377,6 +555,12 @@
                 <div id="drinksList"></div>
             </div>
         </div>
+    </div>
+    
+    <!-- Photo Modal -->
+    <div id="photoModal" class="photo-modal" onclick="closePhotoModal()">
+        <span class="photo-modal-close">&times;</span>
+        <img class="photo-modal-content" id="modalImage">
     </div>
 
     <script>
@@ -452,12 +636,14 @@
         let drinks = [];
         let completions = 0;
         let currentRating = 0;
+        let currentPhotoData = null;
 
         function init() {
             loadData();
             populateLocations();
             setupStarRating();
             setCurrentDateTime();
+            setupPhotoUpload();
             updateDisplay();
         }
 
@@ -537,6 +723,36 @@
             document.getElementById('date').valueAsDate = now;
             document.getElementById('time').value = now.toTimeString().slice(0, 5);
         }
+        
+        function setupPhotoUpload() {
+            document.getElementById('photo').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        currentPhotoData = event.target.result;
+                        document.getElementById('previewImg').src = currentPhotoData;
+                        document.getElementById('photoPreview').style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        function clearPhoto() {
+            currentPhotoData = null;
+            document.getElementById('photo').value = '';
+            document.getElementById('photoPreview').style.display = 'none';
+        }
+        
+        function openPhotoModal(photoData) {
+            document.getElementById('modalImage').src = photoData;
+            document.getElementById('photoModal').style.display = 'block';
+        }
+        
+        function closePhotoModal() {
+            document.getElementById('photoModal').style.display = 'none';
+        }
 
         document.getElementById('drinkForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -570,6 +786,7 @@
                 time: time,
                 rating: currentRating,
                 notes: notes,
+                photo: currentPhotoData,
                 timestamp: new Date(`${date}T${time}`).getTime()
             };
             
@@ -580,6 +797,7 @@
             this.reset();
             document.getElementById('drink').disabled = true;
             setRating(0);
+            clearPhoto();
             setCurrentDateTime();
             
             alert('Drink added successfully!');
@@ -648,8 +866,9 @@
                         <div class="drink-rating">${'★'.repeat(drink.rating)}</div>
                     </div>
                     <div style="color: #666; font-size: 0.9em; margin-bottom: 8px;">${drink.date} at ${drink.time}</div>
-                    ${drink.notes ? `<div style="color: #666; font-style: italic;">"${drink.notes}"</div>` : ''}
-                    <button class="btn btn-danger" onclick="deleteDrink(${drink.id})">Delete</button>
+                    ${drink.photo ? `<img src="${drink.photo}" class="drink-photo" onclick="openPhotoModal('${drink.photo}')" alt="Drink photo">` : ''}
+                    ${drink.notes ? `<div style="color: #666; font-style: italic; margin-top: 8px;">"${drink.notes}"</div>` : ''}
+                    <button class="btn btn-danger" onclick="deleteDrink(${drink.id})" style="margin-top: 10px;">Delete</button>
                 </div>
             `).join('');
         }
