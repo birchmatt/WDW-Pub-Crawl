@@ -27,7 +27,7 @@
         }
         .header h1 { font-size: 2em; margin-bottom: 10px; }
         .header p { opacity: 0.9; }
-        .content { padding: 30px; }
+        .content { padding: 30px; position: relative; z-index: 1; }
         .location-item { 
             background: white; 
             padding: 20px; 
@@ -111,6 +111,11 @@
             max-width: 200px;
             border-radius: 8px;
         }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -121,57 +126,69 @@
         </div>
         
         <div class="content">
-            <h2>Your Progress</h2>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill" style="width: 0%">0/6 locations</div>
-            </div>
+            <div id="loadingMessage" class="loading">Loading...</div>
             
-            <div id="locationList"></div>
-            
-            <h2 style="margin-top: 30px;">Add Drink</h2>
-            <form id="drinkForm">
-                <div class="form-group">
-                    <label>Location</label>
-                    <select id="location" required>
-                        <option value="">Choose location...</option>
-                        <option value="0">Jaleo by Jose Andres</option>
-                        <option value="1">Jock Lindseys Hangar Bar</option>
-                        <option value="2">The Boathouse</option>
-                        <option value="3">Raglan Road</option>
-                        <option value="4">Morimoto Asia</option>
-                        <option value="5">Dockside Margaritas</option>
-                    </select>
+            <div id="mainContent" style="display: none;">
+                <h2>Your Progress</h2>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%">0/6 locations</div>
                 </div>
                 
-                <div class="form-group">
-                    <label>Drink Name</label>
-                    <input type="text" id="drinkName" required placeholder="Enter drink name">
-                </div>
+                <div id="locationList"></div>
                 
-                <div class="form-group">
-                    <label>Rating (1-10)</label>
-                    <input type="number" id="rating" min="1" max="10" required value="5">
-                </div>
-                
-                <div class="form-group">
-                    <label>Notes</label>
-                    <textarea id="notes" placeholder="How was it?"></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label>📸 Photo (optional)</label>
-                    <input type="file" id="photo" accept="image/*" style="display: block; width: 100%; padding: 10px; border: 2px dashed #7c3aed; border-radius: 8px; background: #f5f3ff; cursor: pointer;">
-                    <div id="photoPreview" class="photo-preview" style="display: none;">
-                        <img id="previewImg">
-                        <button type="button" onclick="clearPhoto()" style="padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 8px; margin-top: 8px; cursor: pointer;">Remove Photo</button>
+                <h2 style="margin-top: 30px;">Add Drink</h2>
+                <form id="drinkForm">
+                    <div class="form-group">
+                        <label>Location</label>
+                        <select id="location" required>
+                            <option value="">Choose location...</option>
+                            <option value="0">Jaleo by Jose Andres</option>
+                            <option value="1">Jock Lindseys Hangar Bar</option>
+                            <option value="2">The Boathouse</option>
+                            <option value="3">Raglan Road</option>
+                            <option value="4">Morimoto Asia</option>
+                            <option value="5">Dockside Margaritas</option>
+                        </select>
                     </div>
-                </div>
+                    
+                    <div class="form-group">
+                        <label>Drink (or enter custom below)</label>
+                        <select id="drinkSelect">
+                            <option value="">Select location first...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Custom Drink Name (optional)</label>
+                        <input type="text" id="drinkName" placeholder="Or enter custom drink name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Rating (1-10)</label>
+                        <input type="number" id="rating" min="1" max="10" required value="5">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="notes" placeholder="How was it?"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Photo (optional)</label>
+                        <input type="file" id="photo" accept="image/*" style="width: 100%;">
+                        <div id="photoPreview" class="photo-preview" style="display: none; margin-top: 10px;">
+                            <img id="previewImg" style="max-width: 200px; border-radius: 8px;">
+                            <br>
+                            <button type="button" id="removePhotoBtn" style="padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 8px; margin-top: 8px; cursor: pointer;">Remove Photo</button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="submitBtn">Add Drink</button>
+                </form>
                 
-                <button type="submit" class="btn">Add Drink</button>
-            </form>
-            
-            <h2 style="margin-top: 30px;">Your Drinks</h2>
-            <div id="drinksList"></div>
+                <h2 style="margin-top: 30px;">Your Drinks</h2>
+                <div id="drinksList"></div>
+            </div>
         </div>
     </div>
 
@@ -185,28 +202,76 @@
             'Dockside Margaritas'
         ];
 
+        const DRINKS_BY_LOCATION = [
+            ["Ultimate Gin & Tonic ($18-20)", "Sangria - Glass ($18)", "Sangria - Carafe ($48)", "Sake Sangria ($18)", "Spanish Wines", "Spanish Beers", "Craft Cocktails"],
+            ["Reggie's Revenge ($15.50)", "The Mayor's Reserve ($17.50)", "Wrong Island ($14.50)", "Hovito Mojito ($15.50)", "Air Pirate's Mule ($16.50)", "The Scottish Professor ($15.50)", "Aviator's Flight - Scotch Tasting ($18)", "Jock's Old Fashioned ($18)"],
+            ["Boathouse Bloody Mary ($17)", "Duck Duck Razz ($16)", "Coconut Mojito ($16)", "Blueberry Lemonade ($16)", "Shipwreck ($16)", "American Mule ($15)", "Espresso Martini ($15)", "Orange Crush ($8)"],
+            ["Pint of Guinness", "Irish Craft Beer", "Iced Irish ($16-18)", "Irish Espresso Martini", "The Florida Split (Vodka, Mango, Ice Cream)", "Irish Whiskeys", "Cocktails"],
+            ["Smoked Old Fashioned ($34)", "Mars Shinshu Japanese Whiskey ($20)", "Matcha Lavender Cocktail ($19)", "Mezcal Cocktails ($19)", "Japanese Whisky ($16-170)", "Sake Sangria ($18/$48)", "Coffee Cocktails ($19)"],
+            ["Habanero Lime Margarita ($18)", "Frozen Strawberry Margarita ($17)", "Sunset Margarita ($18)", "Watermelon Margarita ($17.50)", "Orange Grove Rum Runner ($16)", "Dockside Iced Tea ($16.50)", "Key Lime Freeze ($17)"]
+        ];
+
+        let db;
         let drinks = [];
         let currentPhotoData = null;
 
-        function loadData() {
-            try {
-                const saved = localStorage.getItem('springsCrawl');
-                if (saved) {
-                    drinks = JSON.parse(saved);
-                }
-            } catch (e) {
-                console.error('Error loading data:', e);
-                drinks = [];
-            }
+        // Initialize IndexedDB
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('SpringsCrawlDB', 1);
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('drinks')) {
+                        db.createObjectStore('drinks', { keyPath: 'id' });
+                    }
+                };
+            });
         }
 
-        function saveData() {
-            try {
-                localStorage.setItem('springsCrawl', JSON.stringify(drinks));
-            } catch (e) {
-                console.error('Error saving data:', e);
-                alert('Error saving data. Your storage may be full.');
-            }
+        // Load all drinks from IndexedDB
+        function loadData() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['drinks'], 'readonly');
+                const store = transaction.objectStore('drinks');
+                const request = store.getAll();
+                
+                request.onsuccess = () => {
+                    drinks = request.result || [];
+                    resolve(drinks);
+                };
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // Save a drink to IndexedDB
+        function saveDrink(drink) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['drinks'], 'readwrite');
+                const store = transaction.objectStore('drinks');
+                const request = store.put(drink);
+                
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // Delete a drink from IndexedDB
+        function deleteDrinkFromDB(id) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['drinks'], 'readwrite');
+                const store = transaction.objectStore('drinks');
+                const request = store.delete(id);
+                
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
         }
 
         function updateDisplay() {
@@ -252,18 +317,22 @@
             }
         }
 
-        document.getElementById('photo').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    currentPhotoData = event.target.result;
-                    document.getElementById('previewImg').src = currentPhotoData;
-                    document.getElementById('photoPreview').style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+        function updateDrinkOptions() {
+            const locationIndex = document.getElementById('location').value;
+            const drinkSelect = document.getElementById('drinkSelect');
+            
+            if (locationIndex === '') {
+                drinkSelect.innerHTML = '<option value="">Select location first...</option>';
+                return;
             }
-        });
+            
+            const drinks = DRINKS_BY_LOCATION[parseInt(locationIndex)];
+            let html = '<option value="">Select a drink or enter custom below...</option>';
+            for (let i = 0; i < drinks.length; i++) {
+                html += '<option value="' + drinks[i] + '">' + drinks[i] + '</option>';
+            }
+            drinkSelect.innerHTML = html;
+        }
 
         function clearPhoto() {
             currentPhotoData = null;
@@ -271,47 +340,21 @@
             document.getElementById('photoPreview').style.display = 'none';
         }
 
-        document.getElementById('drinkForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const locationValue = document.getElementById('location').value;
-            const drinkNameValue = document.getElementById('drinkName').value;
-            const ratingValue = document.getElementById('rating').value;
-            const notesValue = document.getElementById('notes').value;
-            
-            if (!locationValue || !drinkNameValue || !ratingValue) {
-                alert('Please fill in all required fields!');
-                return;
-            }
-            
-            const drink = {
-                id: Date.now(),
-                locationIndex: parseInt(locationValue),
-                drinkName: drinkNameValue,
-                rating: parseInt(ratingValue),
-                notes: notesValue,
-                photo: currentPhotoData
-            };
-            
-            drinks.push(drink);
-            saveData();
-            
-            document.getElementById('drinkForm').reset();
-            clearPhoto();
-            updateDisplay();
-            alert('Drink added successfully!');
-        });
-
-        function deleteDrink(id) {
+        async function deleteDrink(id) {
             if (confirm('Delete this drink?')) {
-                drinks = drinks.filter(function(d) { return d.id !== id; });
-                saveData();
-                updateDisplay();
+                try {
+                    await deleteDrinkFromDB(id);
+                    drinks = drinks.filter(d => d.id !== id);
+                    updateDisplay();
+                } catch (error) {
+                    console.error('Error deleting drink:', error);
+                    alert('Error deleting drink. Please try again.');
+                }
             }
         }
 
         function openPhotoModal(drinkId) {
-            const drink = drinks.find(function(d) { return d.id === drinkId; });
+            const drink = drinks.find(d => d.id === drinkId);
             if (drink && drink.photo) {
                 const modal = document.createElement('div');
                 modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px;';
@@ -326,8 +369,112 @@
             }
         }
 
-        loadData();
-        updateDisplay();
+        function setupEventListeners() {
+            console.log('Setting up event listeners...');
+            
+            // Location change
+            document.getElementById('location').addEventListener('change', updateDrinkOptions);
+            
+            // Photo input
+            document.getElementById('photo').addEventListener('change', function(e) {
+                console.log('Photo input changed');
+                const file = e.target.files[0];
+                if (file) {
+                    console.log('File selected:', file.name, file.size);
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        currentPhotoData = event.target.result;
+                        document.getElementById('previewImg').src = currentPhotoData;
+                        document.getElementById('photoPreview').style.display = 'block';
+                        console.log('Photo loaded');
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    console.log('No file selected');
+                }
+            });
+
+            // Remove photo button
+            document.getElementById('removePhotoBtn').addEventListener('click', clearPhoto);
+
+            // Form submission
+            document.getElementById('drinkForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                console.log('Form submitted');
+                
+                const locationValue = document.getElementById('location').value;
+                let drinkNameValue = document.getElementById('drinkName').value;
+                const drinkSelectValue = document.getElementById('drinkSelect').value;
+                const ratingValue = document.getElementById('rating').value;
+                const notesValue = document.getElementById('notes').value;
+                
+                console.log('Form values:', { locationValue, drinkNameValue, drinkSelectValue, ratingValue });
+                
+                if (!locationValue || !ratingValue) {
+                    alert('Please fill in all required fields!');
+                    return;
+                }
+                
+                if (!drinkNameValue && drinkSelectValue) {
+                    drinkNameValue = drinkSelectValue;
+                }
+                
+                if (!drinkNameValue) {
+                    alert('Please select a drink or enter a custom drink name!');
+                    return;
+                }
+                
+                const drink = {
+                    id: Date.now(),
+                    locationIndex: parseInt(locationValue),
+                    drinkName: drinkNameValue,
+                    rating: parseInt(ratingValue),
+                    notes: notesValue,
+                    photo: currentPhotoData
+                };
+                
+                console.log('Attempting to save drink:', drink);
+                
+                try {
+                    await saveDrink(drink);
+                    drinks.push(drink);
+                    
+                    document.getElementById('drinkForm').reset();
+                    clearPhoto();
+                    updateDisplay();
+                    alert('Drink added successfully!');
+                } catch (error) {
+                    console.error('Error saving drink:', error);
+                    alert('Error saving drink: ' + error.message);
+                }
+            });
+            
+            console.log('Event listeners attached!');
+        }
+
+        // Initialize app
+        async function init() {
+            try {
+                console.log('Initializing app...');
+                await initDB();
+                console.log('Database initialized');
+                await loadData();
+                console.log('Data loaded:', drinks.length, 'drinks');
+                updateDisplay();
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                console.log('App ready!');
+                
+                // Attach event listeners AFTER content is displayed
+                setupEventListeners();
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                document.getElementById('loadingMessage').innerHTML = '<p style="color: #dc3545;">Error loading app: ' + error.message + '</p>';
+            }
+        }
+
+        init();
     </script>
 </body>
 </html>
